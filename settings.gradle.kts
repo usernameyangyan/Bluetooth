@@ -15,5 +15,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "BluetoothDemo"
-//include(":app")
+include(":app")
 include(":BluetoothManager")

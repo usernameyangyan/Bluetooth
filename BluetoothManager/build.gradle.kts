@@ -2,7 +2,6 @@ plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
     id("kotlin-parcelize")
-    id("maven-publish")
 }
 
 android {
@@ -18,33 +17,6 @@ android {
     }
     kotlinOptions {
         jvmTarget = "1.8"
-    }
-
-
-    buildTypes {
-        release {
-            // release 构建类型的配置
-        }
-    }
-}
-
-
-afterEvaluate {
-    publishing {
-        publications {
-            create<MavenPublication>("release") {
-                from(components["release"])
-                groupId = "com.yang"
-                artifactId = "bluetooth-manager"
-                version = "1.0.0"
-            }
-        }
-
-        repositories {
-            maven {
-                url = uri("https://jitpack.io")
-            }
-        }
     }
 }
 
