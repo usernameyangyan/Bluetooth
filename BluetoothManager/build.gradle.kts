@@ -2,7 +2,6 @@ plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
     id("kotlin-parcelize")
-    id("maven-publish")
 }
 
 android {
@@ -29,22 +28,4 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-}
-
-val GROUP_ID = "com.github.usernameyangyan"
-val ARTIFACT_ID = "BluetoothDemo"
-val VERSION = "1.0.0"
-publishing { // 发布配置
-    publications { // 发布的内容
-        register<MavenPublication>("release") { // 注册一个名字为 release 的发布内容
-            groupId = GROUP_ID
-            artifactId = ARTIFACT_ID
-            version = VERSION
-
-            afterEvaluate { // 在所有的配置都完成之后执行
-                // 从当前 module 的 release 包中发布
-                from(components["release"])
-            }
-        }
-    }
 }
