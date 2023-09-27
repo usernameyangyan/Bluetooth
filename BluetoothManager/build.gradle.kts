@@ -4,6 +4,15 @@ plugins {
     id("kotlin-parcelize")
 }
 
+
+extra.apply {
+    set("PUBLISH_ARTIFACT_ID", "uploadPlugin") // 你的artifact_id，一般是module的名字
+    set("PUBLISH_VERSION", "1.0.3") // 发布版本号
+    set("PUBLISH_GROUP_ID", "xxx") // 你的sonatype的group_id
+}
+
+apply(from = "../publish-mavencentral.gradle")
+
 android {
     namespace = "com.example.bluetooth.manager"
     compileSdk = 33
@@ -19,8 +28,6 @@ android {
         jvmTarget = "1.8"
     }
 }
-
-
 dependencies {
 
     implementation("androidx.core:core-ktx:1.10.1")
