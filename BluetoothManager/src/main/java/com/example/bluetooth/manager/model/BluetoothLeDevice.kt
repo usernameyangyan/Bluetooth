@@ -13,7 +13,7 @@ Create time:2023/8/29 16:17
 Describe:
  */
 @Parcelize
-data class BluetoothLeDevice(val device: BluetoothDevice, val rssi:Int?,val scanRecord:ByteArray?, val timestamp:Long):Parcelable{
+data class BluetoothLeDevice(val device: BluetoothDevice, val rssi:Int,val scanRecord:ByteArray?, val timestamp:Long):Parcelable{
     fun getAddress():String{
         return device.address
     }

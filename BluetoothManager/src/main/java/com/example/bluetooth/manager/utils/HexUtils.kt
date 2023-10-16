@@ -25,7 +25,6 @@ object HexUtils {
         }
         return addr
     }
-
     fun littleBytesToInt(bytes: ByteArray): Int {
         var addr: Int
         when (bytes.size) {

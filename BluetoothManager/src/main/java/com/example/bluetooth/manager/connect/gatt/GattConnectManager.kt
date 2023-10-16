@@ -202,7 +202,7 @@ class GattConnectManager : ICommonGattImpl, IAutoConnectImpl, IGetConnectedDevic
         connectTimeout: Long?,
         scanTimeout: Long?
     ) {
-        BleManager.instance.bluetoothScan.startScan(ScanBluetoothCallback(object : IScanCallback {
+        BleManager.BluetoothScan.instance.startScan(ScanBluetoothCallback(object : IScanCallback {
             override fun onDeviceFound(bluetoothLeDevice: BluetoothLeDevice) {
                 connect(bluetoothLeDevice, callback, connectTimeout)
             }

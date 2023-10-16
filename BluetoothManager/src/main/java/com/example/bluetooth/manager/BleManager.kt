@@ -26,14 +26,6 @@ Create time:2023/8/29 14:34
 Describe:蓝牙管理类
  */
 class BleManager private constructor() {
-    companion object {
-        val instance: BleManager by lazy { BleManager() }
-    }
-
-    val gatt = Gatt.instance
-    val rfcomm = Rfcomm.instance
-    val bluetoothScan = BluetoothScan.instance
-
     class Gatt private constructor() : ICommonGattImpl, IAutoConnectImpl,
         IGetConnectedDeviceListener {
         companion object {
@@ -340,7 +332,7 @@ class BleManager private constructor() {
             val instance: BluetoothScan by lazy { BluetoothScan() }
         }
 
-        override fun stopScan(isClear: Boolean?) {
+        override fun stopScan(isClear: Boolean) {
             BleScanCallbackManager.instance.stopScan(isClear)
         }
 

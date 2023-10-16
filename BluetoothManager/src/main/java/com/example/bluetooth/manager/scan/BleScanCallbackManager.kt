@@ -49,8 +49,8 @@ class BleScanCallbackManager private constructor() :ICommonScanImpl{
     )
 
     @SuppressLint("MissingPermission")
-    override fun stopScan(isClear: Boolean?) {
-        if(isClear==null||isClear==true){
+    override fun stopScan(isClear: Boolean) {
+        if(isClear){
             removeHandlerMsg()
         }
         if(BleConfig.instance.getBleScanType()===BleScanType.SCAN_LOW_POWER){
@@ -154,7 +154,7 @@ class BleScanCallbackManager private constructor() :ICommonScanImpl{
                 // 处理发现的设备
                 val device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE) as BluetoothDevice?
                 device?.let {
-                    scanCallback?.dealDevice(device,null,null)
+                    scanCallback?.dealDevice(device,0,null)
                 }
             }
         }

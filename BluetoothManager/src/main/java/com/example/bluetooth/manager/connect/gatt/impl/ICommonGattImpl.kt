@@ -51,5 +51,4 @@ interface ICommonGattImpl {
 
     fun addConnectStateListener(bleDevice: BluetoothLeDevice,bleConnectStateListener: IBleConnectStateListener)
     fun removeConnectStateListener(bleDevice: BluetoothLeDevice,bleConnectStateListener: IBleConnectStateListener)
-
 }

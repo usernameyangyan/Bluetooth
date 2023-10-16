@@ -7,10 +7,12 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.example.bluetooth.manager.BleManager
-import com.example.bluetooth.manager.exception.BleException
-import com.example.bluetooth.manager.connect.gatt.impl.IBleGattWriteCallback
+import com.example.bluetooth.manager.common.BleConfig.Companion.instance
+import com.example.bluetooth.manager.common.MergeWholeMsgRule.Companion.rule
 import com.example.bluetooth.manager.connect.impl.IBleConnectStateListener
+import com.example.bluetooth.manager.connect.impl.IBleReadCallback
 import com.example.bluetooth.manager.connect.impl.IConnectCallback
+import com.example.bluetooth.manager.exception.BleException
 import com.example.bluetooth.manager.model.BluetoothLeDevice
 import com.example.bluetoothdemo.databinding.ActivityMainBinding
 
@@ -33,10 +35,20 @@ class MainActivity:AppCompatActivity() {
             Manifest.permission.BLUETOOTH_ADVERTISE,
             Manifest.permission.BLUETOOTH_CONNECT),0)
 
-        BleManager.instance.gatt.connectByAddress("BC:6B:FF:14:9C:64",object :IConnectCallback{
+        val rule = rule.setMergeHeadFlag("a55a", 2)
+            .setMergeMessageByteSize(4)
+        instance
+            .setUUidToSPP("00001101-0000-1000-8000-00805F9B34FB")
+            .setMergeWholeMsgRule(rule)
+            .init(this)
+        connect("BC:6B:FF:14:9B:86")
+    }
+
+    private fun connect(ip:String){
+        BleManager.Rfcomm.instance.connectByAddress(ip,object :IConnectCallback{
             override fun onPairSuccess() {
                 super.onPairSuccess()
-                Log.d("BleManager","onPairSuccess:")
+                connect(ip)
             }
 
             override fun onPairing() {
@@ -54,42 +66,60 @@ class MainActivity:AppCompatActivity() {
             }
 
             override fun onConnectSuccess(bleDevice: BluetoothLeDevice, bleGatt: BluetoothGatt?) {
-                Log.d("BleManager","onConnectSuccess:"+bleDevice.getDeviceName())
-                val currentConnectDevice=BleManager.instance.gatt.getConnectedDeviceByAddress(bleDevice.getAddress())
-                Log.d("BleManager","currentConnectDevice:"+currentConnectDevice.toString())
-//                BleManager.instance.gatt.startHeartbeat(bleDevice,"ping",2000)
-                BleManager.instance.gatt.addConnectStateListener(bleDevice,object :IBleConnectStateListener{
+//                Log.d("BleManager","onConnectSuccess:"+bleDevice.getDeviceName())
+//                val currentConnectDevice=BleManager.Gatt.instance.getConnectedDeviceByAddress(bleDevice.getAddress())
+//                Log.d("BleManager","currentConnectDevice:"+currentConnectDevice.toString())
+////                BleManager.instance.gatt.startHeartbeat(bleDevice,"ping",2000)
+//                BleManager.Gatt.instance.addConnectStateListener(bleDevice,object :IBleConnectStateListener{
+//                    override fun onConnectState(isConnect: Boolean) {
+//                        Log.d("BleManager","onConnectState:"+isConnect)
+//                    }
+//                })
+//
+//                BleManager.Gatt.instance.writeMsg(bleDevice,"ping".toByteArray(),object :IBleGattWriteCallback{
+//                    override fun onWriteSuccess(justWrite: ByteArray?) {
+//                        Log.d("BleManager","writeMsg:"+ justWrite?.let { String(it) })
+//                    }
+//
+//                    override fun onWriteFailure(exception: BleException) {
+//                        Log.d("BleManager","writeMsg:"+exception.description)
+//                    }
+//                })
+//
+//                BleManager.Gatt.instance.writeMsg(bleDevice,"123456789".toByteArray(),object :IBleGattWriteCallback{
+//                    override fun onWriteSuccess(justWrite: ByteArray?) {
+//                        Log.d("BleManager","writeMsg:"+ justWrite?.let { String(it) })
+//                    }
+//
+//                    override fun onWriteFailure(exception: BleException) {
+//                        Log.d("BleManager","writeMsg:"+exception.description)
+//                    }
+//                })
+                BleManager.Rfcomm.instance.addConnectStateListener(bleDevice,object :IBleConnectStateListener{
                     override fun onConnectState(isConnect: Boolean) {
-                        Log.d("BleManager","onConnectState:"+isConnect)
+                        Log.d("BleManager","收到的内容为："+isConnect)
                     }
+
                 })
 
-                BleManager.instance.gatt.writeMsg(bleDevice,"ping".toByteArray(),object :IBleGattWriteCallback{
-                    override fun onWriteSuccess(justWrite: ByteArray?) {
-                        Log.d("BleManager","writeMsg:"+ justWrite?.let { String(it) })
+                BleManager.Rfcomm.instance.startHeartbeat(bleDevice,"ping",2000)
+                BleManager.Rfcomm.instance.addMessageListener(bleDevice,object :IBleReadCallback{
+                    override fun onReadSuccess(data: ByteArray) {
+                        Log.d("BleManager","收到的内容为：")
+
+
+                        BleManager.Rfcomm.instance.writeMsg(bleDevice,"{\"args\": {}, \"op\": \"call_service\", \"service\": \"/device_info/get_current_network\", \"timeout\": 15}")
                     }
 
-                    override fun onWriteFailure(exception: BleException) {
-                        Log.d("BleManager","writeMsg:"+exception.description)
+                    override fun onReadFailure(exception: BleException) {
+                        Log.d("BleManager","收到的内容为：1111")
                     }
+
                 })
-
-                BleManager.instance.gatt.writeMsg(bleDevice,"123456789".toByteArray(),object :IBleGattWriteCallback{
-                    override fun onWriteSuccess(justWrite: ByteArray?) {
-                        Log.d("BleManager","writeMsg:"+ justWrite?.let { String(it) })
-                    }
-
-                    override fun onWriteFailure(exception: BleException) {
-                        Log.d("BleManager","writeMsg:"+exception.description)
-                    }
-                })
-
-
 
             }
 
         },20000,20000)
-
 
 //        BleScanCallbackManager.instance.startScan(ScanBluetoothCallback(object : IScanCallback {
 //            override fun onDeviceFound(bluetoothLeDevice: BluetoothLeDevice) {

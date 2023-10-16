@@ -10,15 +10,16 @@ import android.content.IntentFilter
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.annotation.RequiresApi
 import com.example.bluetooth.manager.common.BleConfig
 import com.example.bluetooth.manager.common.IDeviceConnectMirror
 import com.example.bluetooth.manager.common.MessageDeal
-import com.example.bluetooth.manager.exception.BleException
-import com.example.bluetooth.manager.exception.BleExceptionCode
 import com.example.bluetooth.manager.connect.impl.IBleConnectStateListener
 import com.example.bluetooth.manager.connect.impl.IBleReadCallback
 import com.example.bluetooth.manager.connect.impl.IConnectCallback
+import com.example.bluetooth.manager.exception.BleException
+import com.example.bluetooth.manager.exception.BleExceptionCode
 import com.example.bluetooth.manager.model.BluetoothLeDevice
 import java.io.IOException
 import java.io.InputStream
@@ -140,6 +141,7 @@ class RfcommConnectMirror(private val bluetoothBleDevice: BluetoothLeDevice) : I
             mmOutStream = mmSocket?.outputStream
             RfcommConnectManager.instance.getMultiRfcommOpera().addRfcommConnectMirror(this)
             connectCallback?.onConnectSuccess(bluetoothBleDevice)
+            sendConnectState()
             read()
         }
         isConnecting = false
@@ -226,6 +228,7 @@ class RfcommConnectMirror(private val bluetoothBleDevice: BluetoothLeDevice) : I
         }
         try {
             mmOutStream?.write(bytes)
+            mmOutStream?.flush()
         } catch (e: Exception) {
             disconnect()
             return false

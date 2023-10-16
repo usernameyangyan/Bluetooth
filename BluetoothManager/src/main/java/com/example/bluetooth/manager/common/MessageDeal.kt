@@ -1,5 +1,6 @@
 package com.example.bluetooth.manager.common
 
+import android.util.Log
 import com.example.bluetooth.manager.utils.HexUtils
 import com.example.bluetooth.manager.utils.OwnByteMergerUtils
 

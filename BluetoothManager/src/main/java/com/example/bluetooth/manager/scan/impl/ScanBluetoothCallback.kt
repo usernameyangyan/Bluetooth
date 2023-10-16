@@ -16,7 +16,7 @@ open class ScanBluetoothCallback(private var scanCallback: IScanCallback,private
             dealDevice(device,rssi,scanRecord)
         }
     }
-    fun dealDevice(device: BluetoothDevice,rssi:Int?,scanRecord:ByteArray?){
+    fun dealDevice(device: BluetoothDevice,rssi:Int,scanRecord:ByteArray?){
         val bluetoothLeDevice = BluetoothLeDevice(device, rssi, scanRecord, System.currentTimeMillis())
         val isContain=BluetoothLeDeviceResults.instance.isContainDevice(bluetoothLeDevice)
         if(!isContain){
