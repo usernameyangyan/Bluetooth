@@ -26,6 +26,8 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
+import java.util.Timer
+import java.util.TimerTask
 
 /**
 Create by yangyan
@@ -96,17 +98,30 @@ class RfcommConnectMirror(private val bluetoothBleDevice: BluetoothLeDevice) : I
     /**
      * 连接流程
      */
+    private var timer:Timer?=null
+    private fun clearConnectTimer() {
+        if (timer != null) {
+            timer!!.cancel()
+            timer = null
+        }
+    }
+
     @SuppressLint("MissingPermission")
     private fun connect() {
         if (isConnecting||isConnected) {
             return
         }
+
         isConnecting = true
         isStopConnect = false
+        clearConnectTimer()
         connectTimeout?.let {
-            handler?.postDelayed({
-                isStopConnect = true
-                mmSocket?.close()
+            timer=Timer()
+            timer?.schedule(object : TimerTask() {
+                override fun run() {
+                    isStopConnect = true
+                    mmSocket?.close()
+                }
             }, it)
         }
         while (mmSocket?.isConnected == false && !isStopConnect) {
@@ -137,6 +152,7 @@ class RfcommConnectMirror(private val bluetoothBleDevice: BluetoothLeDevice) : I
         }
         if (mmSocket?.isConnected == true) {
             isConnected = true
+            clearConnectTimer()
             mmInStream = mmSocket?.inputStream
             mmOutStream = mmSocket?.outputStream
             RfcommConnectManager.instance.getMultiRfcommOpera().addRfcommConnectMirror(this)
@@ -242,18 +258,28 @@ class RfcommConnectMirror(private val bluetoothBleDevice: BluetoothLeDevice) : I
         interval: Long
     ) {
         startHeartbeat(bleDevice, heartContent.toByteArray(), interval)
-
     }
 
     override fun startHeartbeat(bleDevice: BluetoothLeDevice, bytes: ByteArray, interval: Long) {
         writeMsg(bleDevice, bytes)
-        startHeartLoop(bleDevice,bytes,interval)
+        startPing(bytes,bleDevice,interval)
     }
-    private fun startHeartLoop(bleDevice: BluetoothLeDevice, bytes: ByteArray, interval: Long){
-        handler?.postDelayed({
-            writeMsg(bleDevice, bytes)
-            startHeartLoop(bleDevice,bytes,interval)
-        }, interval)
+
+    private var sendPingTimer: Timer? = null
+    private fun clearSendPingTimer() {
+        if (sendPingTimer != null) {
+            sendPingTimer!!.cancel()
+            sendPingTimer = null
+        }
+    }
+    private fun startPing(message:ByteArray,bleDevice: BluetoothLeDevice,interval: Long) {
+        clearSendPingTimer()
+        sendPingTimer = Timer()
+        sendPingTimer!!.schedule(object : TimerTask() {
+            override fun run() {
+                writeMsg(bleDevice,message)
+            }
+        }, 0, interval)
     }
 
     override fun addMessageListener(
@@ -294,6 +320,7 @@ class RfcommConnectMirror(private val bluetoothBleDevice: BluetoothLeDevice) : I
         sendConnectState()
         connectCallback = null
         handler?.removeCallbacksAndMessages(null)
+        clearSendPingTimer()
         mmInStream?.close()
         mmOutStream?.close()
         mmSocket?.close()

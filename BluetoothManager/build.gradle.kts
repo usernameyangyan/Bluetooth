@@ -5,12 +5,6 @@ plugins {
 }
 
 
-extra.apply {
-    set("PUBLISH_ARTIFACT_ID", "uploadPlugin") // 你的artifact_id，一般是module的名字
-    set("PUBLISH_VERSION", "1.0.3") // 发布版本号
-    set("PUBLISH_GROUP_ID", "xxx") // 你的sonatype的group_id
-}
-
 apply(from = "../publish-mavencentral.gradle")
 
 android {

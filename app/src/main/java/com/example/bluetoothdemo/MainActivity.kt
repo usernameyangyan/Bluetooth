@@ -3,6 +3,7 @@ package com.example.bluetoothdemo
 import android.Manifest
 import android.bluetooth.BluetoothGatt
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -45,6 +46,7 @@ class MainActivity:AppCompatActivity() {
     }
 
     private fun connect(ip:String){
+        Log.d("BleManager","开始连接:")
         BleManager.Rfcomm.instance.connectByAddress(ip,object :IConnectCallback{
             override fun onPairSuccess() {
                 super.onPairSuccess()
@@ -97,7 +99,7 @@ class MainActivity:AppCompatActivity() {
 //                })
                 BleManager.Rfcomm.instance.addConnectStateListener(bleDevice,object :IBleConnectStateListener{
                     override fun onConnectState(isConnect: Boolean) {
-                        Log.d("BleManager","收到的内容为："+isConnect)
+                        Log.d("BleManager","收到的内容为,连接："+isConnect)
                     }
 
                 })
@@ -105,10 +107,7 @@ class MainActivity:AppCompatActivity() {
                 BleManager.Rfcomm.instance.startHeartbeat(bleDevice,"ping",2000)
                 BleManager.Rfcomm.instance.addMessageListener(bleDevice,object :IBleReadCallback{
                     override fun onReadSuccess(data: ByteArray) {
-                        Log.d("BleManager","收到的内容为：")
-
-
-                        BleManager.Rfcomm.instance.writeMsg(bleDevice,"{\"args\": {}, \"op\": \"call_service\", \"service\": \"/device_info/get_current_network\", \"timeout\": 15}")
+//                        BleManager.Rfcomm.instance.writeMsg(bleDevice,"{\"args\": {}, \"op\": \"call_service\", \"service\": \"/device_info/get_current_network\", \"timeout\": 15}")
                     }
 
                     override fun onReadFailure(exception: BleException) {
@@ -119,7 +118,7 @@ class MainActivity:AppCompatActivity() {
 
             }
 
-        },20000,20000)
+        },2000,20000)
 
 //        BleScanCallbackManager.instance.startScan(ScanBluetoothCallback(object : IScanCallback {
 //            override fun onDeviceFound(bluetoothLeDevice: BluetoothLeDevice) {
